@@ -23,11 +23,15 @@ import grp
 import os
 import pytest
 
-from jwql.utils.permissions import set_permissions, has_permissions, \
-    get_owner_string, get_group_string
+from jwql.utils.permissions import (
+    set_permissions,
+    has_permissions,
+    get_owner_string,
+    get_group_string,
+)
 
 # directory to be created and populated during tests running
-TEST_DIRECTORY = os.path.join(os.environ['HOME'], 'permission_test')
+TEST_DIRECTORY = os.path.join(os.environ["HOME"], "permission_test")
 
 
 @pytest.fixture(scope="module")
@@ -68,7 +72,7 @@ def test_directory_permissions(test_directory):
     # independently from the user.
     owner = get_owner_string(test_directory)
     group = get_group_string(test_directory)
-    print('\nCurrent owner={} group={}'.format(owner, group))
+    print("\nCurrent owner={} group={}".format(owner, group))
 
     set_permissions(test_directory, owner=owner, group=group)
     assert has_permissions(test_directory, owner=owner, group=group)
@@ -91,9 +95,9 @@ def test_file(test_dir=TEST_DIRECTORY):
     if not os.path.isdir(test_dir):
         os.mkdir(test_dir)
 
-    filename = os.path.join(test_dir, 'permission_test.txt')
-    with open(filename, 'w') as filestream:
-        filestream.write('jwql permission test')
+    filename = os.path.join(test_dir, "permission_test.txt")
+    with open(filename, "w") as filestream:
+        filestream.write("jwql permission test")
     yield filename
     print("teardown test file and directory ")
     if os.path.isfile(filename):

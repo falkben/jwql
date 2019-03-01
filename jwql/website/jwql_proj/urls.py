@@ -51,6 +51,6 @@ from django.urls import include, path
 
 
 urlpatterns = [
-    path('', include('jwql.website.apps.jwql.urls')),
-    path('admin/', admin.site.urls),
+    path("", include("jwql.website.apps.jwql.urls")),
+    path("admin/", admin.site.urls),
 ]

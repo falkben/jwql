@@ -28,10 +28,12 @@ from astropy.io import fits
 from jwql.utils.preview_image import PreviewImage
 
 # directory to be created and populated during tests running
-TEST_DIRECTORY = os.path.join(os.environ['HOME'], 'preview_image_test')
+TEST_DIRECTORY = os.path.join(os.environ["HOME"], "preview_image_test")
 
 # directory that contains sample images
-TEST_DATA_DIRECTORY = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data')
+TEST_DATA_DIRECTORY = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "test_data"
+)
 
 
 @pytest.fixture(scope="module")
@@ -67,8 +69,8 @@ def test_make_image(test_directory):
         Path of directory used for testing
 
     """
-    filenames = glob.glob(os.path.join(TEST_DATA_DIRECTORY, '*.fits'))
-    print('\nGenerating preview images for {}.'.format(filenames))
+    filenames = glob.glob(os.path.join(TEST_DATA_DIRECTORY, "*.fits"))
+    print("\nGenerating preview images for {}.".format(filenames))
 
     output_directory = test_directory
 
@@ -81,9 +83,9 @@ def test_make_image(test_directory):
             try:
                 image = PreviewImage(filename, "SCI")
                 image.clip_percent = 0.01
-                image.scaling = 'log'
-                image.cmap = 'viridis'
-                image.output_format = 'jpg'
+                image.scaling = "log"
+                image.cmap = "viridis"
+                image.output_format = "jpg"
                 image.thumbnail = create_thumbnail
 
                 if create_thumbnail:
@@ -96,14 +98,15 @@ def test_make_image(test_directory):
                 print(error)
 
             if create_thumbnail:
-                extension = 'thumb'
+                extension = "thumb"
             else:
-                extension = 'jpg'
+                extension = "jpg"
 
             # list of preview images
-            preview_image_filenames = glob.glob(os.path.join(test_directory, '*.{}'.format(
-                extension)))
-            assert len(preview_image_filenames) == header['NINTS']
+            preview_image_filenames = glob.glob(
+                os.path.join(test_directory, "*.{}".format(extension))
+            )
+            assert len(preview_image_filenames) == header["NINTS"]
 
             # clean up: delete preview images
             for file in preview_image_filenames:

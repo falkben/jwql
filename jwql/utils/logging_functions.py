@@ -1,4 +1,3 @@
-
 """ Logging functions for the ``jwql`` automation platform.
 
 This module provides decorators to log the execution of modules.  Log
@@ -68,11 +67,11 @@ from functools import wraps
 from jwql.utils.permissions import set_permissions
 from jwql.utils.utils import get_config, ensure_dir_exists
 
-LOG_FILE_LOC = ''
-PRODUCTION_BOOL = ''
+LOG_FILE_LOC = ""
+PRODUCTION_BOOL = ""
 
 
-def configure_logging(module, production_mode=True, path='./'):
+def configure_logging(module, production_mode=True, path="./"):
     """Configure the log file with a standard logging format.
 
     Parameters
@@ -97,14 +96,16 @@ def configure_logging(module, production_mode=True, path='./'):
     PRODUCTION_BOOL = production_mode
 
     # Create the log file and set the permissions
-    logging.basicConfig(filename=log_file,
-                        format='%(asctime)s %(levelname)s: %(message)s',
-                        datefmt='%m/%d/%Y %H:%M:%S %p',
-                        level=logging.INFO)
+    logging.basicConfig(
+        filename=log_file,
+        format="%(asctime)s %(levelname)s: %(message)s",
+        datefmt="%m/%d/%Y %H:%M:%S %p",
+        level=logging.INFO,
+    )
     set_permissions(log_file)
 
 
-def make_log_file(module, production_mode=True, path='./'):
+def make_log_file(module, production_mode=True, path="./"):
     """Create the log file name based on the module name.
 
     The name of the ``log_file`` is a combination of the name of the
@@ -127,16 +128,16 @@ def make_log_file(module, production_mode=True, path='./'):
         The full path to where the log file will be written to.
     """
 
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M')
-    filename = '{0}_{1}.log'.format(module, timestamp)
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    filename = "{0}_{1}.log".format(module, timestamp)
     user = pwd.getpwuid(os.getuid()).pw_name
 
     settings = get_config()
-    admin_account = settings['admin_account']
-    log_path = settings['log_dir']
+    admin_account = settings["admin_account"]
+    log_path = settings["log_dir"]
 
     if user != admin_account or not production_mode:
-        module = os.path.join('dev', module)
+        module = os.path.join("dev", module)
 
     if production_mode:
         log_file = os.path.join(log_path, module, filename)
@@ -170,30 +171,33 @@ def log_info(func):
     def wrapped(*a, **kw):
 
         # Log environment information
-        logging.info('User: ' + getpass.getuser())
-        logging.info('System: ' + socket.gethostname())
-        logging.info('Python Version: ' + sys.version.replace('\n', ''))
-        logging.info('Python Executable Path: ' + sys.executable)
+        logging.info("User: " + getpass.getuser())
+        logging.info("System: " + socket.gethostname())
+        logging.info("Python Version: " + sys.version.replace("\n", ""))
+        logging.info("Python Executable Path: " + sys.executable)
 
         # Read in setup.py file to build list of required modules
         settings = get_config()
-        setup_file_name = settings['setup_file']
+        setup_file_name = settings["setup_file"]
         with open(setup_file_name) as setup:
             for line in setup:
                 if line[0:8] == "REQUIRES":
                     module_required = line[12:-2]
-                    module_list = module_required.split(',')
+                    module_list = module_required.split(",")
 
         # Clean up the module list
-        module_list = [module.replace('"', '').replace("'", '').replace(' ', '') for module in module_list]
-        module_list = [module.split('=')[0] for module in module_list]
+        module_list = [
+            module.replace('"', "").replace("'", "").replace(" ", "")
+            for module in module_list
+        ]
+        module_list = [module.split("=")[0] for module in module_list]
 
         # Log common module version information
         for module in module_list:
             try:
                 mod = importlib.import_module(module)
-                logging.info(module + ' Version: ' + mod.__version__)
-                logging.info(module + ' Path: ' + mod.__path__[0])
+                logging.info(module + " Version: " + mod.__version__)
+                logging.info(module + " Path: " + mod.__path__[0])
             except ImportError as err:
                 logging.warning(err)
 
@@ -209,8 +213,16 @@ def log_info(func):
         minutes_cpu, seconds_cpu = divmod(remainder_cpu, 60)
         hours_time, remainder_time = divmod(t2_time - t1_time, 60 * 60)
         minutes_time, seconds_time = divmod(remainder_time, 60)
-        logging.info('Elapsed Real Time: {0:.0f}:{1:.0f}:{2:f}'.format(hours_time, minutes_time, seconds_time))
-        logging.info('Elapsed CPU Time: {0:.0f}:{1:.0f}:{2:f}'.format(hours_cpu, minutes_cpu, seconds_cpu))
+        logging.info(
+            "Elapsed Real Time: {0:.0f}:{1:.0f}:{2:f}".format(
+                hours_time, minutes_time, seconds_time
+            )
+        )
+        logging.info(
+            "Elapsed CPU Time: {0:.0f}:{1:.0f}:{2:f}".format(
+                hours_cpu, minutes_cpu, seconds_cpu
+            )
+        )
 
     return wrapped
 
@@ -236,10 +248,10 @@ def log_fail(func):
 
             # Run the function
             func(*a, **kw)
-            logging.info('Completed Successfully')
+            logging.info("Completed Successfully")
 
         except Exception:
             logging.critical(traceback.format_exc())
-            logging.critical('CRASHED')
+            logging.critical("CRASHED")
 
     return wrapped

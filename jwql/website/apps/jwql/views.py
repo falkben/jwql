@@ -50,11 +50,15 @@ from .data_containers import thumbnails
 from .data_containers import thumbnails_ajax
 from .forms import FileSearchForm
 from .oauth import auth_info
-from jwql.utils.constants import JWST_INSTRUMENT_NAMES, MONITORS, JWST_INSTRUMENT_NAMES_MIXEDCASE
+from jwql.utils.constants import (
+    JWST_INSTRUMENT_NAMES,
+    MONITORS,
+    JWST_INSTRUMENT_NAMES_MIXEDCASE,
+)
 from jwql.utils.utils import get_base_url, get_config
 import jwql
 
-FILESYSTEM_DIR = os.path.join(get_config()['jwql_dir'], 'filesystem')
+FILESYSTEM_DIR = os.path.join(get_config()["jwql_dir"], "filesystem")
 
 
 @auth_info
@@ -71,14 +75,16 @@ def about(request, user):
     HttpResponse object
         Outgoing response sent to the webpage
     """
-    template = 'about.html'
+    template = "about.html"
     acknowledgements = get_acknowledgements()
-    context = {'acknowledgements': acknowledgements,
-               'inst': '',
-               'inst_list': JWST_INSTRUMENT_NAMES,
-               'tools': MONITORS,
-               'user': user,
-               'version': jwql.__version__}
+    context = {
+        "acknowledgements": acknowledgements,
+        "inst": "",
+        "inst_list": JWST_INSTRUMENT_NAMES,
+        "tools": MONITORS,
+        "user": user,
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)
 
@@ -102,12 +108,14 @@ def archived_proposals(request, user, inst):
     # Ensure the instrument is correctly capitalized
     inst = JWST_INSTRUMENT_NAMES_MIXEDCASE[inst.lower()]
 
-    template = 'archive.html'
-    context = {'inst': inst,
-               'tools': MONITORS,
-               'user': user,
-               'base_url': get_base_url(),
-               'version': jwql.__version__}
+    template = "archive.html"
+    context = {
+        "inst": inst,
+        "tools": MONITORS,
+        "user": user,
+        "base_url": get_base_url(),
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)
 
@@ -136,16 +144,20 @@ def archived_proposals_ajax(request, inst):
     all_filenames = [os.path.basename(f) for f in filepaths]
     proposal_info = get_proposal_info(filepaths)
 
-    context = {'inst': inst,
-               'all_filenames': all_filenames,
-               'tools': MONITORS,
-               'num_proposals': proposal_info['num_proposals'],
-               'thumbnails': {'proposals': proposal_info['proposals'],
-                              'thumbnail_paths': proposal_info['thumbnail_paths'],
-                              'num_files': proposal_info['num_files']},
-               'version': jwql.__version__}
+    context = {
+        "inst": inst,
+        "all_filenames": all_filenames,
+        "tools": MONITORS,
+        "num_proposals": proposal_info["num_proposals"],
+        "thumbnails": {
+            "proposals": proposal_info["proposals"],
+            "thumbnail_paths": proposal_info["thumbnail_paths"],
+            "num_files": proposal_info["num_files"],
+        },
+        "version": jwql.__version__,
+    }
 
-    return JsonResponse(context, json_dumps_params={'indent': 2})
+    return JsonResponse(context, json_dumps_params={"indent": 2})
 
 
 @auth_info
@@ -170,13 +182,15 @@ def archive_thumbnails(request, user, inst, proposal):
     # Ensure the instrument is correctly capitalized
     inst = JWST_INSTRUMENT_NAMES_MIXEDCASE[inst.lower()]
 
-    template = 'thumbnails.html'
-    context = {'inst': inst,
-               'prop': proposal,
-               'tools': MONITORS,
-               'user': user,
-               'base_url': get_base_url(),
-               'version': jwql.__version__}
+    template = "thumbnails.html"
+    context = {
+        "inst": inst,
+        "prop": proposal,
+        "tools": MONITORS,
+        "user": user,
+        "base_url": get_base_url(),
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)
 
@@ -205,7 +219,7 @@ def archive_thumbnails_ajax(request, inst, proposal):
 
     data = thumbnails_ajax(inst, proposal)
 
-    return JsonResponse(data, json_dumps_params={'indent': 2})
+    return JsonResponse(data, json_dumps_params={"indent": 2})
 
 
 @auth_info
@@ -222,20 +236,23 @@ def dashboard(request, user):
     HttpResponse object
         Outgoing response sent to the webpage
     """
-    template = 'dashboard.html'
-    output_dir = get_config()['outputs']
+    template = "dashboard.html"
+    output_dir = get_config()["outputs"]
     dashboard_components, dashboard_html = get_dashboard_components()
 
-    context = {'inst': '',
-               'inst_list': JWST_INSTRUMENT_NAMES,
-               'tools': MONITORS,
-               'user': user,
-               'outputs': output_dir,
-               'filesystem_html': os.path.join(output_dir, 'monitor_filesystem',
-                                               'filesystem_monitor.html'),
-               'dashboard_components': dashboard_components,
-               'dashboard_html': dashboard_html,
-               'version': jwql.__version__}
+    context = {
+        "inst": "",
+        "inst_list": JWST_INSTRUMENT_NAMES,
+        "tools": MONITORS,
+        "user": user,
+        "outputs": output_dir,
+        "filesystem_html": os.path.join(
+            output_dir, "monitor_filesystem", "filesystem_monitor.html"
+        ),
+        "dashboard_components": dashboard_components,
+        "dashboard_html": dashboard_html,
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)
 
@@ -259,13 +276,15 @@ def engineering_database(request, user):
     """
     edb_components = get_edb_components(request)
 
-    template = 'engineering_database.html'
-    context = {'inst': '',
-               'inst_list': JWST_INSTRUMENT_NAMES,
-               'user': user,
-               'tools': MONITORS,
-               'edb_components': edb_components,
-               'version': jwql.__version__}
+    template = "engineering_database.html"
+    context = {
+        "inst": "",
+        "inst_list": JWST_INSTRUMENT_NAMES,
+        "user": user,
+        "tools": MONITORS,
+        "edb_components": edb_components,
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)
 
@@ -291,17 +310,19 @@ def home(request, user):
     form = FileSearchForm(request.POST or None)
 
     # If this is a POST request, we need to process the form data
-    if request.method == 'POST':
+    if request.method == "POST":
         if form.is_valid():
             return form.redirect_to_files()
 
-    template = 'home.html'
-    context = {'inst': '',
-               'inst_list': JWST_INSTRUMENT_NAMES,
-               'tools': MONITORS,
-               'form': form,
-               'user': user,
-               'version': jwql.__version__}
+    template = "home.html"
+    context = {
+        "inst": "",
+        "inst_list": JWST_INSTRUMENT_NAMES,
+        "tools": MONITORS,
+        "form": form,
+        "user": user,
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)
 
@@ -325,20 +346,24 @@ def instrument(request, user, inst):
     # Ensure the instrument is correctly capitalized
     inst = JWST_INSTRUMENT_NAMES_MIXEDCASE[inst.lower()]
 
-    template = 'instrument.html'
-    url_dict = {'fgs': 'http://jwst-docs.stsci.edu/display/JTI/Fine+Guidance+Sensor%2C+FGS?q=fgs',
-                'miri': 'http://jwst-docs.stsci.edu/display/JTI/Mid+Infrared+Instrument',
-                'niriss': 'http://jwst-docs.stsci.edu/display/JTI/Near+Infrared+Imager+and+Slitless+Spectrograph',
-                'nirspec': 'http://jwst-docs.stsci.edu/display/JTI/Near+Infrared+Spectrograph',
-                'nircam': 'http://jwst-docs.stsci.edu/display/JTI/Near+Infrared+Camera'}
+    template = "instrument.html"
+    url_dict = {
+        "fgs": "http://jwst-docs.stsci.edu/display/JTI/Fine+Guidance+Sensor%2C+FGS?q=fgs",
+        "miri": "http://jwst-docs.stsci.edu/display/JTI/Mid+Infrared+Instrument",
+        "niriss": "http://jwst-docs.stsci.edu/display/JTI/Near+Infrared+Imager+and+Slitless+Spectrograph",
+        "nirspec": "http://jwst-docs.stsci.edu/display/JTI/Near+Infrared+Spectrograph",
+        "nircam": "http://jwst-docs.stsci.edu/display/JTI/Near+Infrared+Camera",
+    }
 
     doc_url = url_dict[inst.lower()]
 
-    context = {'inst': inst,
-               'tools': MONITORS,
-               'user': user,
-               'doc_url': doc_url,
-               'version': jwql.__version__}
+    context = {
+        "inst": inst,
+        "tools": MONITORS,
+        "user": user,
+        "doc_url": doc_url,
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)
 
@@ -362,9 +387,9 @@ def unlooked_images(request, user, inst):
     # Ensure the instrument is correctly capitalized
     inst = JWST_INSTRUMENT_NAMES_MIXEDCASE[inst.lower()]
 
-    template = 'thumbnails.html'
+    template = "thumbnails.html"
     context = thumbnails(inst)
-    context['user'] = user
+    context["user"] = user
 
     return render(request, template, context)
 
@@ -390,18 +415,23 @@ def view_header(request, user, inst, file):
     # Ensure the instrument is correctly capitalized
     inst = JWST_INSTRUMENT_NAMES_MIXEDCASE[inst.lower()]
 
-    template = 'view_header.html'
+    template = "view_header.html"
     header = get_header_info(file)
-    file_root = '_'.join(file.split('_')[:-1])
+    file_root = "_".join(file.split("_")[:-1])
 
-    return render(request, template,
-                  {'inst': inst,
-                   'file': file,
-                   'tools': MONITORS,
-                   'user': user,
-                   'header': header,
-                   'file_root': file_root,
-                   'version': jwql.__version__})
+    return render(
+        request,
+        template,
+        {
+            "inst": inst,
+            "file": file,
+            "tools": MONITORS,
+            "user": user,
+            "header": header,
+            "file_root": file_root,
+            "version": jwql.__version__,
+        },
+    )
 
 
 @auth_info
@@ -427,16 +457,18 @@ def view_image(request, user, inst, file_root, rewrite=False):
     # Ensure the instrument is correctly capitalized
     inst = JWST_INSTRUMENT_NAMES_MIXEDCASE[inst.lower()]
 
-    template = 'view_image.html'
+    template = "view_image.html"
     image_info = get_image_info(file_root, rewrite)
-    context = {'inst': inst,
-               'file_root': file_root,
-               'tools': MONITORS,
-               'user': user,
-               'jpg_files': image_info['all_jpegs'],
-               'fits_files': image_info['all_files'],
-               'suffixes': image_info['suffixes'],
-               'num_ints': image_info['num_ints'],
-               'version': jwql.__version__}
+    context = {
+        "inst": inst,
+        "file_root": file_root,
+        "tools": MONITORS,
+        "user": user,
+        "jpg_files": image_info["all_jpegs"],
+        "fits_files": image_info["all_files"],
+        "suffixes": image_info["suffixes"],
+        "num_ints": image_info["num_ints"],
+        "version": jwql.__version__,
+    }
 
     return render(request, template, context)

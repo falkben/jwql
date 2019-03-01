@@ -85,6 +85,7 @@ def data_frame(self):
     """Method to return a ``pandas.DataFrame`` of the results"""
     return pd.read_sql(self.statement, self.session.bind)
 
+
 Query.data_frame = data_frame
 
 
@@ -132,19 +133,21 @@ def load_connection(connection_string):
 
 
 # Import a global session.  If running from readthedocs, pass a dummy connection string
-if 'build' and 'project' and 'jwql' in socket.gethostname():
-    dummy_connection_string = 'postgresql+psycopg2://account:password@hostname:0000/db_name'
+if "build" and "project" and "jwql" in socket.gethostname():
+    dummy_connection_string = (
+        "postgresql+psycopg2://account:password@hostname:0000/db_name"
+    )
     session, base, engine, meta = load_connection(dummy_connection_string)
 else:
     SETTINGS = utils.get_config()
-    session, base, engine, meta = load_connection(SETTINGS['connection_string'])
+    session, base, engine, meta = load_connection(SETTINGS["connection_string"])
 
 
 class Anomaly(base):
     """ORM for the ``anomalies`` table"""
 
     # Name the table
-    __tablename__ = 'anomalies'
+    __tablename__ = "anomalies"
 
     # Define the columns
     id = Column(Integer, primary_key=True, nullable=False)
@@ -177,11 +180,15 @@ class Anomaly(base):
         """Return the canonical string representation of the object"""
 
         # Get the columns that are True
-        a_list = [col for col, val in self.__dict__.items()
-                  if val is True and isinstance(val, bool)]
+        a_list = [
+            col
+            for col, val in self.__dict__.items()
+            if val is True and isinstance(val, bool)
+        ]
 
-        txt = ('Anomaly {0.id}: {0.filename} flagged at '
-               '{0.flag_date} for {1}').format(self, a_list)
+        txt = (
+            "Anomaly {0.id}: {0.filename} flagged at " "{0.flag_date} for {1}"
+        ).format(self, a_list)
 
         return txt
 
@@ -190,8 +197,7 @@ class Anomaly(base):
         """A list of all the column names in this table"""
 
         # Get the columns
-        a_list = [col for col, val in self.__dict__.items()
-                  if isinstance(val, bool)]
+        a_list = [col for col, val in self.__dict__.items() if isinstance(val, bool)]
 
         return a_list
 
@@ -200,13 +206,13 @@ class Monitor(base):
     """ORM for the ``monitor`` table"""
 
     # Name the table
-    __tablename__ = 'monitor'
+    __tablename__ = "monitor"
 
     id = Column(Integer, primary_key=True)
     monitor_name = Column(String(), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=True)
-    status = Column(Enum('SUCESS', 'FAILURE'), nullable=True)
+    status = Column(Enum("SUCESS", "FAILURE"), nullable=True)
     affected_tables = Column(Array, nullable=True)
     log_file(Column(String(), nullable=False))
 
@@ -231,24 +237,28 @@ def get_monitor_columns(data_dict, table_name):
     """
 
     # Define column types
-    data_type_dict = {'integer': Integer(),
-                      'string': String(),
-                      'float': Float(precision=32),
-                      'decimal': Float(precision='13,8'),
-                      'date': Date(),
-                      'time': Time(),
-                      'datetime': DateTime,
-                      'bool': Boolean}
+    data_type_dict = {
+        "integer": Integer(),
+        "string": String(),
+        "float": Float(precision=32),
+        "decimal": Float(precision="13,8"),
+        "date": Date(),
+        "time": Time(),
+        "datetime": DateTime,
+        "bool": Boolean,
+    }
 
     # Get the data from the table definition file
-    table_definition_file = os.path.join(os.path.split(__file__)[0],
-                                         'monitor_table_definitions',
-                                         '{}.txt'.format(table_name))
-    with open(table_definition_file, 'r') as f:
+    table_definition_file = os.path.join(
+        os.path.split(__file__)[0],
+        "monitor_table_definitions",
+        "{}.txt".format(table_name),
+    )
+    with open(table_definition_file, "r") as f:
         data = f.readlines()
 
     # Parse out the column names from the data types
-    column_definitions = [item.strip().split(', ') for item in data]
+    column_definitions = [item.strip().split(", ") for item in data]
     for column_definition in column_definitions:
         column_name = column_definition[0]
         data_type = column_definition[1]
@@ -257,7 +267,9 @@ def get_monitor_columns(data_dict, table_name):
         if data_type in list(data_type_dict.keys()):
             data_dict[column_name.lower()] = Column(data_type_dict[data_type])
         else:
-            raise ValueError('Unrecognized column type: {}:{}'.format(column_name, data_type))
+            raise ValueError(
+                "Unrecognized column type: {}:{}".format(column_name, data_type)
+            )
 
     return data_dict
 
@@ -301,20 +313,25 @@ def monitor_orm_factory(class_name):
 
     # Initialize a dictionary to hold the column metadata
     data_dict = {}
-    data_dict['__tablename__'] = class_name.lower()
+    data_dict["__tablename__"] = class_name.lower()
 
     # Columns specific to all monitor ORMs
-    data_dict['id'] = Column(Integer, primary_key=True, nullable=False)
-    data_dict['entry_date'] = Column(DateTime, unique=True, nullable=False, default=datetime.now())
-    data_dict['__table_args__'] = (UniqueConstraint('id', 'entry_date', name='monitor_uc'),)
+    data_dict["id"] = Column(Integer, primary_key=True, nullable=False)
+    data_dict["entry_date"] = Column(
+        DateTime, unique=True, nullable=False, default=datetime.now()
+    )
+    data_dict["__table_args__"] = (
+        UniqueConstraint("id", "entry_date", name="monitor_uc"),
+    )
 
     # Get monitor-specific columns
-    data_dict = get_monitor_columns(data_dict, data_dict['__tablename__'])
+    data_dict = get_monitor_columns(data_dict, data_dict["__tablename__"])
 
     # Get monitor-specific table constrains
-    data_dict = get_monitor_table_constraints(data_dict, data_dict['__tablename__'])
+    data_dict = get_monitor_table_constraints(data_dict, data_dict["__tablename__"])
 
     return type(class_name, (base,), data_dict)
+
 
 # Create tables from ORM factory
 # NIRCamDarkQueries = monitor_orm_factory('nircam_dark_queries')
@@ -322,6 +339,6 @@ def monitor_orm_factory(class_name):
 # NIRCamDarkDarkCurrent = monitor_orm_factory('nircam_dark_dark_current')
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     base.metadata.create_all(engine)
